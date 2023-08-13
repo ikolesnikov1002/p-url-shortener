@@ -2,8 +2,10 @@ package sqlite
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	str "url-shortener/internal/lib/string"
+	"url-shortener/internal/storage"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -67,4 +69,28 @@ func (s *Storage) Create(urlValue string) (int64, error) {
 	}
 
 	return id, nil
+}
+
+func (s *Storage) GetUrl(alias string) (string, error) {
+	const op = "storage.sqlite.GetUrl"
+
+	stmt, err := s.db.Prepare("SELECT url FROM url where alias = ?")
+
+	if err != nil {
+		return "", fmt.Errorf("%s: prepare select url statement: %w", op, err)
+	}
+
+	var resUrl string
+
+	err = stmt.QueryRow(alias).Scan(&resUrl)
+
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return "", storage.ErrorUrlNotFound
+		}
+
+		return "", fmt.Errorf("%s: can't get url id: %w", op, err)
+	}
+
+	return resUrl, nil
 }
