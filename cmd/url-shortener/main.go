@@ -4,6 +4,8 @@ import (
 	"log/slog"
 	"os"
 	"url-shortener/internal/config"
+	sl "url-shortener/internal/lib/logger"
+	"url-shortener/internal/storage/sqlite"
 )
 
 func main() {
@@ -12,6 +14,13 @@ func main() {
 
 	// Set up logger
 	log := setupLogger(cfg.Env)
+
+	// Init storage
+	storage, err := sqlite.New(cfg.StoragePath)
+
+	if err != nil {
+		log.Error("Failed to init storage", sl.Err(err))
+	}
 
 	log.Info("Starting server", slog.String("Address", cfg.Host+":"+cfg.Port))
 	log.Debug("Debug mode is enabled.")
