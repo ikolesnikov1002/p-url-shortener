@@ -77,7 +77,10 @@ func New(log *slog.Logger, saver UrlSaver) http.HandlerFunc {
 
 		log.Error("Url created", alias)
 
-		render.JSON(w, r, Response{Alias: alias})
+		render.JSON(w, r, Response{
+			Response: response.OK(),
+			Alias:    alias,
+		})
 
 		return
 	}

@@ -4,8 +4,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
+	"net/http"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/http-server/handlers/url/create"
 	sl "url-shortener/internal/lib/logger"
 	"url-shortener/internal/storage/sqlite"
 )
@@ -31,6 +33,25 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.URLFormat)
 
+	r.Post("/url", create.New(log, storage))
+
+	log.Info("Starting server", slog.String("Address", cfg.Host+":"+cfg.Port))
+	log.Debug("Debug mode is enabled.")
+
+	srv := &http.Server{
+		Addr:         cfg.Host + ":" + cfg.Port,
+		Handler:      r,
+		ReadTimeout:  cfg.HttpServer.Timeout,
+		WriteTimeout: cfg.HttpServer.Timeout,
+		IdleTimeout:  cfg.HttpServer.IdleTimeout,
+	}
+
+	if err := srv.ListenAndServe(); err != nil {
+		log.Error("Failed to start server", err)
+	}
+
+	log.Error("Server stopped")
+
 	//rec, err := storage.CreateUrl("http://google.com/3")
 	//
 	//if err != nil {
@@ -50,8 +71,6 @@ func main() {
 	//}
 	//log.Info("url deleted")
 
-	log.Info("Starting server", slog.String("Address", cfg.Host+":"+cfg.Port))
-	log.Debug("Debug mode is enabled.")
 }
 
 func setupLogger(env string) *slog.Logger {

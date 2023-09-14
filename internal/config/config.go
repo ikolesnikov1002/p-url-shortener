@@ -4,6 +4,7 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 	"log"
 	"os"
+	"time"
 )
 
 type Config struct {
@@ -13,8 +14,10 @@ type Config struct {
 }
 
 type HttpServer struct {
-	Host string `yaml:"host" env-default:"localhost"`
-	Port string `yaml:"port" env-default:"8082"`
+	Host        string        `yaml:"host" env-default:"localhost"`
+	Port        string        `yaml:"port" env-default:"8082"`
+	Timeout     time.Duration `yaml:"timeout" env-default:"5s"`
+	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
 }
 
 func LoadConfig() *Config {
