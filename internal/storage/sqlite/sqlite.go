@@ -44,31 +44,25 @@ func New(storagePath string) (*Storage, error) {
 	return &Storage{db: db}, nil
 }
 
-func (s *Storage) CreateUrl(urlValue string) (int64, error) {
+func (s *Storage) CreateUrl(urlValue string) (string, error) {
 	const op = "storage.sqlite.Create"
 
 	stmt, err := s.db.Prepare("INSERT INTO url (alias, url) VALUES (?, ?)")
 
 	if err != nil {
-		return 0, fmt.Errorf("%s: prepare statement: %w", op, err)
+		return "", fmt.Errorf("%s: prepare statement: %w", op, err)
 	}
 
 	// TODO Check that alias is not exists in db
 	alias := str.Generate(6)
 
-	res, err := stmt.Exec(alias, urlValue)
+	_, err = stmt.Exec(alias, urlValue)
 
 	if err != nil {
-		return 0, fmt.Errorf("%s: exec statement: %w", op, err)
+		return "", fmt.Errorf("%s: exec statement: %w", op, err)
 	}
 
-	id, err := res.LastInsertId()
-
-	if err != nil {
-		return 0, fmt.Errorf("%s: can't get last insert id: %w", op, err)
-	}
-
-	return id, nil
+	return alias, nil
 }
 
 func (s *Storage) GetUrl(alias string) (string, error) {

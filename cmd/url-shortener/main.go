@@ -1,6 +1,8 @@
 package main
 
 import (
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"log/slog"
 	"os"
 	"url-shortener/internal/config"
@@ -21,6 +23,13 @@ func main() {
 	if err != nil {
 		log.Error("Failed to init storage", sl.Err(err))
 	}
+
+	r := chi.NewRouter()
+
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	r.Use(middleware.URLFormat)
 
 	//rec, err := storage.CreateUrl("http://google.com/3")
 	//
