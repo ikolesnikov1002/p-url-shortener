@@ -8,6 +8,7 @@ import (
 	"os"
 	"url-shortener/internal/config"
 	"url-shortener/internal/http-server/handlers/url/create"
+	"url-shortener/internal/http-server/handlers/url/redirect"
 	sl "url-shortener/internal/lib/logger"
 	"url-shortener/internal/storage/sqlite"
 )
@@ -34,6 +35,7 @@ func main() {
 	r.Use(middleware.URLFormat)
 
 	r.Post("/url", create.New(log, storage))
+	r.Get("/{alias}", redirect.New(log, storage))
 
 	log.Info("Starting server", slog.String("Address", cfg.Host+":"+cfg.Port))
 	log.Debug("Debug mode is enabled.")
