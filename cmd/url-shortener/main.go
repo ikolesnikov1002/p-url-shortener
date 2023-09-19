@@ -34,6 +34,8 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.URLFormat)
 
+	// TODO auth
+
 	r.Post("/url", create.New(log, storage))
 	r.Get("/{alias}", redirect.New(log, storage))
 
